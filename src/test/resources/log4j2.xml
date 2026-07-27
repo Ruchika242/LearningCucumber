@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Configuration status="WARN">
+
+    <Properties>
+
+        <Property name="logPattern">
+            %d{yyyy-MM-dd HH:mm:ss} [%t] %-5level %logger{36} - %msg%n
+        </Property>
+
+    </Properties>
+
+
+    <Appenders>
+
+
+        <!-- Console Logs -->
+        <Console name="Console" target="SYSTEM_OUT">
+
+            <PatternLayout pattern="${logPattern}"/>
+
+        </Console>
+
+
+
+        <!-- File Logs -->
+        <RollingFile
+                name="FileLogger"
+                fileName="target/logs/automation.log"
+                filePattern="target/logs/archive/automation-%d{yyyy-MM-dd}-%i.log.gz">
+
+
+            <PatternLayout pattern="${logPattern}"/>
+
+
+            <Policies>
+
+                <TimeBasedTriggeringPolicy/>
+
+                <SizeBasedTriggeringPolicy size="10MB"/>
+
+            </Policies>
+
+
+            <DefaultRolloverStrategy max="10"/>
+
+
+        </RollingFile>
+
+
+    </Appenders>
+
+
+
+    <Loggers>
+
+
+        <!-- Selenium logs less noise -->
+        <Logger name="org.openqa.selenium"
+                level="error"
+                additivity="false">
+
+            <AppenderRef ref="Console"/>
+
+        </Logger>
+
+
+
+        <!-- Cucumber logs -->
+        <Logger name="io.cucumber"
+                level="info"
+                additivity="false">
+
+            <AppenderRef ref="Console"/>
+
+            <AppenderRef ref="FileLogger"/>
+
+        </Logger>
+
+
+
+        <!-- Your Framework Logs -->
+        <Logger name="base"
+                level="info"
+                additivity="false">
+
+            <AppenderRef ref="Console"/>
+
+            <AppenderRef ref="FileLogger"/>
+
+        </Logger>
+
+
+        <Logger name="pages"
+                level="info"
+                additivity="false">
+
+            <AppenderRef ref="Console"/>
+
+            <AppenderRef ref="FileLogger"/>
+
+        </Logger>
+
+
+        <Logger name="stepDefinations"
+                level="info"
+                additivity="false">
+
+            <AppenderRef ref="Console"/>
+
+            <AppenderRef ref="FileLogger"/>
+
+        </Logger>
+
+
+        <Logger name="hooks"
+                level="info"
+                additivity="false">
+
+            <AppenderRef ref="Console"/>
+
+            <AppenderRef ref="FileLogger"/>
+
+        </Logger>
+
+
+
+        <!-- Root Logger -->
+
+        <Root level="info">
+
+            <AppenderRef ref="Console"/>
+
+            <AppenderRef ref="FileLogger"/>
+
+        </Root>
+
+
+    </Loggers>
+
+
+</Configuration>
