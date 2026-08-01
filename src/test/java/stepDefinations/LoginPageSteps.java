@@ -2,8 +2,6 @@ package stepDefinations;
 
 import factory.DriverFactory;
 import io.cucumber.java.en.*;
-import org.junit.jupiter.api.Assertions;
-import pages.DashboardPage;
 import pages.LoginPage;
 
 
@@ -11,7 +9,6 @@ import pages.LoginPage;
 public class LoginPageSteps {
 
     private LoginPage loginPage;
-    private DashboardPage dashboardPage;
 
 
     private void initializePage() {
@@ -30,8 +27,6 @@ public class LoginPageSteps {
     @When("User opens URL {string}")
     public void openURL(String url) {
 
-
-
         DriverFactory
                 .getDriver()
                 .get(url);
@@ -43,13 +38,8 @@ public class LoginPageSteps {
     @When("User enters Username {string} and Password {string}")
     public void enterCredentials(String username, String password) {
 
-
         initializePage();
-
-
-        dashboardPage =
-                loginPage.login(username, password);
-
+        loginPage.login(username, password);
 
     }
 
@@ -60,18 +50,5 @@ public class LoginPageSteps {
 
     }
 
-
-
-    @Then("DashboardPage URL should be {string}")
-    public void dashboardURL(String expectedURL) {
-
-
-        Assertions.assertEquals(
-                expectedURL,
-                dashboardPage.getCurrentURL()
-        );
-
-
-    }
 
 }

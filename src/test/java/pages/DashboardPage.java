@@ -3,9 +3,12 @@ package pages;
 
 import baseClass.BaseClass;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import utilities.WaitUtils;
 
 import java.time.Duration;
 
@@ -13,7 +16,7 @@ import java.time.Duration;
 public class DashboardPage extends BaseClass {
 
 
-    private WebDriver driver;
+    private final WebDriver driver;
 
 
     public DashboardPage(WebDriver driver) {
@@ -24,6 +27,8 @@ public class DashboardPage extends BaseClass {
 
     }
 
+    @FindBy(xpath = "//span[text()='Accounts']")
+    WebElement accountsOption;
 
 
     public String getCurrentURL(){
@@ -42,6 +47,11 @@ public class DashboardPage extends BaseClass {
 
         return driver.getCurrentUrl();
 
+    }
+
+    public AccountsPage clickOnAccountsOption() {
+        WaitUtils.waitForElementClickable(accountsOption).click();
+        return new AccountsPage(driver);
     }
 
 }
