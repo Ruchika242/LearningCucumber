@@ -2,15 +2,25 @@ package pages;
 
 import baseClass.BaseClass;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import utilities.WaitUtils;
 
-public class AccountsPage extends BaseClass {
-    public AccountsPage(WebDriver driver) {
+import java.time.Duration;
+import java.util.List;
 
+public class AccountsPage extends BaseClass {
+    private final WebDriver driver;
+
+    public AccountsPage(WebDriver driver) {
+        this.driver = driver;
         PageFactory.initElements(driver, this);
 
     }
@@ -21,23 +31,25 @@ public class AccountsPage extends BaseClass {
     @FindBy(id="account-form-name")
     WebElement accountName;
 
-    @FindBy(xpath = "(//span[text()='Select type']")
+    @FindBy(xpath = "//span[text()='Select type']")
     WebElement accountType;
 
     @FindBy(xpath = "//div[text()='Savings']")
     WebElement savingsAccountType;
 
-    @FindBy(name = "account_balance_field")
-    WebElement startingBalance;
-
     @FindBy(xpath = "//div[text()='Checking']")
     WebElement checkingAccountType;
 
-    @FindBy(xpath = "//button[@type='submit']")
-    WebElement submitButton;
+    @FindBy(name = "account_balance_field")
+    WebElement startingBalance;
 
     @FindBy(xpath = "//span[@data-testid=\"account-form-accept-terms-checkbox\"]")
     WebElement acceptTermsCheckbox;
+
+    @FindBy(xpath = "(//button[text()='Add Account'])[2]")
+    WebElement AddAccountButton;
+
+
 
     public void clickAddAccountButton() {
 
@@ -50,37 +62,48 @@ public class AccountsPage extends BaseClass {
     }
 
     public void selectAccountType(String type) {
-        if ("Savings".equalsIgnoreCase(type)) {
-            try {
-                WaitUtils.waitForElementClickable(accountType).click();
-                WaitUtils.waitForElementClickable(savingsAccountType).click();
-            } catch (RuntimeException ignored) {
-                // Some UI variants keep the default type without exposing the picker.
-            }
-            return;
-        }
 
-        if ("Checking".equalsIgnoreCase(type)) {
-            WaitUtils.waitForElementClickable(accountType).click();
-            WaitUtils.waitForElementClickable(checkingAccountType).click();
-            return;
-        }
+        WaitUtils.waitForElementClickable(accountType).click();
 
-        throw new IllegalArgumentException("Unsupported account type: " + type);
+        By optionLocator = By.xpath(
+                "//div[normalize-space()='" + type + "']"
+        );
+
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+        WebElement option = wait.until(
+                ExpectedConditions.elementToBeClickable(optionLocator)
+        );
+
+        option.click();
     }
 
     public void enterStartingBalance(String balance) {
-        WaitUtils.waitForElementVisible(startingBalance).clear();
-        startingBalance.sendKeys(balance);
-    }
-
-    public void clickSubmitButton() {
-        WaitUtils.waitForElementClickable(submitButton).click();
+        try {
+            // Re-find the element to avoid stale element reference
+            WebElement balanceField = new WebDriverWait(
+                    driver, Duration.ofSeconds(10)
+            ).until(ExpectedConditions.visibilityOfElementLocated(By.name("account_balance_field")));
+            balanceField.clear();
+            balanceField.sendKeys(balance);
+        } catch (StaleElementReferenceException e) {
+            // If element is stale, use JavaScript to set value
+            WebElement balanceField = driver.findElement(By.name("account_balance_field"));
+            ((JavascriptExecutor) driver).executeScript("arguments[0].value='';", balanceField);
+            ((JavascriptExecutor) driver).executeScript("arguments[0].value=arguments[1];", balanceField, balance);
+        }
     }
 
     public void clickAcceptTermsCheckbox() {
+
         WaitUtils.waitForElementClickable(acceptTermsCheckbox).click();
     }
+
+    public void clickOnAddAccountButton() {
+        WaitUtils.waitForElementClickable(AddAccountButton).click();
+    }
+
+
 
     public boolean isAccountVisible(String name) {
         By accountNameLocator = By.xpath("//*[contains(normalize-space(),\"" + name + "\")]");

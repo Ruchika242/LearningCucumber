@@ -2,9 +2,14 @@ package hooks;
 
 
 import baseClass.BaseClass;
+import factory.DriverFactory;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.Scenario;
+import io.cucumber.java.Status;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebDriverException;
 
 
 public class Hooks extends BaseClass {
@@ -29,12 +34,25 @@ public class Hooks extends BaseClass {
     public void afterScenario(Scenario scenario){
 
 
-        if(scenario.isFailed()){
-
+        if(scenario.getStatus() != Status.PASSED){
 
             takeScreenshot(
                     scenario.getName()
             );
+
+            try {
+                byte[] screenshot =
+                        ((TakesScreenshot) DriverFactory.getDriver())
+                                .getScreenshotAs(OutputType.BYTES);
+                scenario.attach(
+                        screenshot,
+                        "image/png",
+                        "Failure Screenshot"
+                );
+            }
+            catch (WebDriverException | ClassCastException | NullPointerException e) {
+                logger.warn("Unable to attach screenshot to report", e);
+            }
 
         }
 

@@ -30,6 +30,9 @@ public class DashboardPage extends BaseClass {
     @FindBy(xpath = "//span[text()='Accounts']")
     WebElement accountsOption;
 
+    @FindBy(xpath = "//span[text()='Transfer']")
+    private WebElement transferButton;
+
 
     public String getCurrentURL(){
 
@@ -52,6 +55,11 @@ public class DashboardPage extends BaseClass {
     public AccountsPage clickOnAccountsOption() {
         WaitUtils.waitForElementClickable(accountsOption).click();
         return new AccountsPage(driver);
+    }
+
+    public TransferPage clickOnTransferButton() {
+        WaitUtils.waitForElementClickable(transferButton).click();
+        return new TransferPage(driver);
     }
 
 }

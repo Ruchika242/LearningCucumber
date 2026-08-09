@@ -90,10 +90,16 @@ public class AccountsPageSteps {
         accountsPage.enterStartingBalance(accountBalance);
     }
 
+    @And("User clicks on accept Terms and Conditions checkbox")
+    public void userClicksOnAcceptTermsAndConditionsCheckbox() {
+        initializeAccountsPage();
+        accountsPage.clickAcceptTermsCheckbox();
+    }
+
     @And("User clicks on Submit button")
     public void userClicksOnSubmitButton() {
         initializeAccountsPage();
-        accountsPage.clickSubmitButton();
+        accountsPage.clickOnAddAccountButton();
     }
 
     @Then("User should see the new account {string} in the Accounts page")

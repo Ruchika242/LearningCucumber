@@ -137,35 +137,42 @@ public class BaseClass {
 
 
     public void takeScreenshot(String scenarioName){
+        WebDriver driver = DriverFactory.getDriver();
 
+        if (driver == null) {
+            logger.warn("Screenshot skipped: WebDriver is null");
+            return;
+        }
 
         String timestamp =
                 new SimpleDateFormat(
                         "yyyyMMdd_HHmmss")
                         .format(new Date());
 
+        String safeScenarioName =
+                scenarioName.replaceAll("[^a-zA-Z0-9-_ ]", "")
+                        .replace(" ", "_");
 
-
-        File screenshot =
-                ((TakesScreenshot)
-                        DriverFactory.getDriver())
-                        .getScreenshotAs(OutputType.FILE);
-
-
+        File screenshotDir = new File("ScreenShots");
+        if (!screenshotDir.exists() && !screenshotDir.mkdirs()) {
+            logger.error("Screenshot failed: unable to create directory " + screenshotDir.getAbsolutePath());
+            return;
+        }
 
         File destination =
                 new File(
-                        "screenshots/"
-                                + scenarioName.replace(" ","_")
+                        screenshotDir,
+                        safeScenarioName
                                 + "_"
                                 + timestamp
                                 + ".png"
                 );
 
-
-
         try {
 
+            File screenshot =
+                    ((TakesScreenshot) driver)
+                            .getScreenshotAs(OutputType.FILE);
 
             FileUtils.copyFile(
                     screenshot,
@@ -175,12 +182,12 @@ public class BaseClass {
 
             logger.info(
                     "Screenshot saved : "
-                            + destination
+                            + destination.getAbsolutePath()
             );
 
 
         }
-        catch(IOException e){
+        catch(IOException | WebDriverException e){
 
             logger.error(
                     "Screenshot failed",

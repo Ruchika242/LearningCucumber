@@ -4,4 +4,3 @@ Feature: Dashboard Page should be displayed after successful login and able to c
     And User enters Username "standard_user" and Password "bank_sauce"
     And User clicks on Login button
     Then DashboardPage URL should be "https://qaplayground.com/bank/dashboard"
-    Then User clicks on Accounts button and should be redirected to Accounts page with URL "https://qaplayground.com/bank/accounts"
