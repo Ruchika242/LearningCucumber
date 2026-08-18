@@ -1,54 +1,67 @@
 package stepDefinations;
 
-import factory.DriverFactory;
-import io.cucumber.java.en.*;
+import context.TestContext;
+import drivermanager.DriverManagerClass;
+import io.cucumber.java.en.And;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
+import org.junit.jupiter.api.Assertions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import pages.DashboardPage;
 import pages.LoginPage;
+import utilities.ConfigReader;
 
-
+import java.time.Duration;
 
 public class LoginPageSteps {
 
-    private LoginPage loginPage;
+    private final TestContext testContext;
 
+    public LoginPageSteps(TestContext testContext) {
+        this.testContext = testContext;
+    }
 
-    private void initializePage() {
-
-        if (loginPage == null) {
-
-            loginPage = new LoginPage(
-                    DriverFactory.getDriver()
-            );
-
+    private LoginPage getLoginPage() {
+        if (testContext.getLoginPage() == null) {
+            testContext.setLoginPage(new LoginPage());
         }
-
+        return testContext.getLoginPage();
     }
 
-
-    @When("User opens URL {string}")
-    public void openURL(String url) {
-
-        DriverFactory
-                .getDriver()
-                .get(url);
-
+    @When("User opens the application URL")
+    public void openApplicationUrl() {
+        DriverManagerClass.DriverManager.getDriver().get(ConfigReader.getBaseUrl());
     }
 
+    @And("User logs in with configured credentials")
+    public void loginWithConfiguredCredentials() {
+        DashboardPage dashboardPage =
+                getLoginPage().login(ConfigReader.getUsername(), ConfigReader.getPassword());
 
-
-    @When("User enters Username {string} and Password {string}")
-    public void enterCredentials(String username, String password) {
-
-        initializePage();
-        loginPage.login(username, password);
-
+        // Save for reuse in next steps/classes within the same scenario.
+        testContext.setDashboardPage(dashboardPage);
     }
 
-    @When("User clicks on Login button")
-    public void clickLoginButton(){
-
-        loginPage.clickLoginButton();
-
+    @And("User logs in with invalid credentials")
+    public void loginWithInvalidCredentials() {
+        getLoginPage().login(ConfigReader.getInvalidUsername(), ConfigReader.getInvalidPassword());
+        // Invalid login should remain on login page; clear dashboard from context.
+        testContext.setDashboardPage(null);
     }
 
+    @Then("DashboardPage URL should be {string}")
+    public void verifyDashboardUrl(String expectedUrl) {
+        WebDriverWait wait = new WebDriverWait(
+                DriverManagerClass.DriverManager.getDriver(),
+                Duration.ofSeconds(ConfigReader.getExplicitWaitTimeout())
+        );
+        wait.until(ExpectedConditions.urlContains("dashboard"));
+        Assertions.assertEquals(expectedUrl, DriverManagerClass.DriverManager.getDriver().getCurrentUrl());
+    }
 
+    @Then("LoginPage URL should be {string}")
+    public void verifyLoginPageUrl(String expectedUrl) {
+        Assertions.assertEquals(expectedUrl, DriverManagerClass.DriverManager.getDriver().getCurrentUrl());
+    }
 }

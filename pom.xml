@@ -22,12 +22,19 @@
 
         <!-- Dependency Versions -->
         <selenium.version>4.34.0</selenium.version>
-        <cucumber.version>7.20.1</cucumber.version>
+        <cucumber.version>7.23.0</cucumber.version>
 
         <junit.version>5.11.4</junit.version>
         <junit.platform.version>1.11.4</junit.platform.version>
 
         <surefire.version>3.5.2</surefire.version>
+
+        <!-- Execution defaults (can be overridden with -D... at runtime) -->
+        <browser>chrome</browser>
+        <headless>false</headless>
+        <env>qa</env>
+        <cucumber.filter.tags></cucumber.filter.tags>
+        <cucumber.execution.parallel.enabled>false</cucumber.execution.parallel.enabled>
 
     </properties>
 
@@ -51,12 +58,7 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>tech.grasshopper</groupId>
-            <artifactId>extentreports-cucumber7-adapter</artifactId>
-            <version>1.14.0</version>
-            <scope>test</scope>
-        </dependency>
+
 
 
 
@@ -98,12 +100,6 @@
         </dependency>
 
 
-        <!-- Extent Reports -->
-        <dependency>
-            <groupId>com.aventstack</groupId>
-            <artifactId>extentreports</artifactId>
-            <version>5.1.2</version>
-        </dependency>
 
 
         <!-- Apache POI Excel -->
@@ -129,12 +125,20 @@
             <version>2.23.1</version>
         </dependency>
 
-
-        <!-- Screenshot Utility -->
+        <!-- Route SLF4J logs (used by some libraries) to Log4j2 -->
         <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.16.1</version>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j2-impl</artifactId>
+            <version>2.23.1</version>
+            <scope>test</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-picocontainer</artifactId>
+            <version>${cucumber.version}</version>
+            <scope>test</scope>
         </dependency>
 
 
@@ -153,6 +157,14 @@
                 <version>${surefire.version}</version>
 
                 <configuration>
+                    <useModulePath>false</useModulePath>
+                    <systemPropertyVariables>
+                        <browser>${browser}</browser>
+                        <headless>${headless}</headless>
+                        <env>${env}</env>
+                        <cucumber.filter.tags>${cucumber.filter.tags}</cucumber.filter.tags>
+                        <cucumber.execution.parallel.enabled>${cucumber.execution.parallel.enabled}</cucumber.execution.parallel.enabled>
+                    </systemPropertyVariables>
 
                     <includes>
                         <include>**/TestRunner.java</include>
@@ -163,9 +175,59 @@
             </plugin>
 
 
+            <!-- Cluecumber Report Plugin -->
+            <plugin>
+                <groupId>com.trivago.rta</groupId>
+                <artifactId>cluecumber-engine</artifactId>
+                <version>2.9.4</version>
+                <executions>
+                    <execution>
+                        <id>generate-cluecumber-report</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>reporting</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <sourceJsonReportDirectory>${project.build.directory}/reports/cucumber</sourceJsonReportDirectory>
+                    <generatedHtmlReportDirectory>${project.build.directory}/reports/cluecumber</generatedHtmlReportDirectory>
+                    <customPageTitle>Automation Test Execution Report</customPageTitle>
+                    <customParameters>
+                        <Browser>${browser}</Browser>
+                        <Environment>${env}</Environment>
+                        <Headless>${headless}</Headless>
+                    </customParameters>
+                </configuration>
+            </plugin>
+
+
         </plugins>
 
     </build>
+
+    <profiles>
+        <profile>
+            <id>local</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <headless>false</headless>
+                <env>qa</env>
+                <cucumber.execution.parallel.enabled>false</cucumber.execution.parallel.enabled>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>ci</id>
+            <properties>
+                <headless>true</headless>
+                <env>ci</env>
+                <cucumber.execution.parallel.enabled>true</cucumber.execution.parallel.enabled>
+            </properties>
+        </profile>
+    </profiles>
 
 
 </project>

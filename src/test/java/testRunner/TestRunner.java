@@ -6,6 +6,6 @@ import org.junit.platform.suite.api.Suite;
 
 @Suite
 @IncludeEngines("cucumber")
-@SelectClasspathResource("Features/Transfer.feature")
+@SelectClasspathResource("Features")
 public class TestRunner {
 }

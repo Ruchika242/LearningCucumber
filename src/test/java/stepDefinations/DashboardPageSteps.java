@@ -1,27 +1,47 @@
 package stepDefinations;
 
-import factory.DriverFactory;
+import context.TestContext;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 import org.junit.jupiter.api.Assertions;
 import pages.DashboardPage;
 
 public class DashboardPageSteps {
 
-    private DashboardPage dashboardPage;
+    private final TestContext testContext;
 
-    private void initializeDashboardPage() {
-        if (dashboardPage == null) {
-            dashboardPage = new DashboardPage(DriverFactory.getDriver());
-        }
+    public DashboardPageSteps(TestContext testContext) {
+        this.testContext = testContext;
     }
 
-    @Then("DashboardPage URL should be {string}")
-    public void dashboardURL(String expectedURL) {
-        initializeDashboardPage();
+    private DashboardPage getDashboardPage() {
+        if (testContext.getDashboardPage() == null) {
+            testContext.setDashboardPage(new DashboardPage());
+        }
+        return testContext.getDashboardPage();
+    }
 
-        Assertions.assertEquals(
-                expectedURL,
-                dashboardPage.getCurrentURL()
+    @When("Navigate to Dashboard")
+    public void navigateToDashboard() {
+        // Login step already lands on dashboard; ensure page object is available in context.
+        getDashboardPage();
+    }
+
+    @Then("Locate the Recent Transactions widget")
+    public void locateRecentTransactionsWidget() {
+        Assertions.assertTrue(
+                getDashboardPage().isRecentTransactionsWidgetDisplayed(),
+                "Recent Transactions widget is not visible on Dashboard."
+        );
+    }
+
+    @And("Assert that maximum 5 transactions are shown")
+    public void assertThatMaximum5TransactionsAreShown() {
+        int count = getDashboardPage().getTransactionRowCount();
+        Assertions.assertTrue(
+                count <= 5,
+                "Expected maximum 5 recent transactions, but found: " + count
         );
     }
 

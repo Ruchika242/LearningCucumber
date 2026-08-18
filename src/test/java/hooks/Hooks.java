@@ -1,72 +1,51 @@
 package hooks;
 
-
-import baseClass.BaseClass;
-import factory.DriverFactory;
+import drivermanager.DriverManagerClass;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.Scenario;
-import io.cucumber.java.Status;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
-import org.openqa.selenium.WebDriverException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import utilities.ConfigReader;
+import utilities.ScreenshotUtil;
 
+public class Hooks {
 
-public class Hooks extends BaseClass {
-
+    private static final Logger LOGGER = LogManager.getLogger(Hooks.class);
 
     @Before
-    public void beforeScenario(){
-
-
-        launchBrowser();
-
-
-        logger.info(
-                "Scenario Started"
+    public void setUp(Scenario scenario) {
+        LOGGER.info(
+                "Starting scenario: {} | env={} | browser={} | headless={}",
+                scenario.getName(),
+                ConfigReader.getExecutionEnvironment(),
+                ConfigReader.getBrowser(),
+                ConfigReader.isHeadless()
         );
 
+        DriverManagerClass.DriverManager.initializeDriver(ConfigReader.getBrowser());
     }
-
-
 
     @After
-    public void afterScenario(Scenario scenario){
+    public void tearDown(Scenario scenario) {
+        try {
+            boolean shouldCapture = scenario.isFailed()
+                    ? ConfigReader.isScreenshotOnFailureEnabled()
+                    : false;
 
+            if (shouldCapture) {
+                ScreenshotUtil.ScreenshotCapture capture = ScreenshotUtil.captureScreenshot(scenario.getName());
+                if (capture != null) {
+                    LOGGER.info("Screenshot saved: {}", capture.filePath());
 
-        if(scenario.getStatus() != Status.PASSED){
-
-            takeScreenshot(
-                    scenario.getName()
-            );
-
-            try {
-                byte[] screenshot =
-                        ((TakesScreenshot) DriverFactory.getDriver())
-                                .getScreenshotAs(OutputType.BYTES);
-                scenario.attach(
-                        screenshot,
-                        "image/png",
-                        "Failure Screenshot"
-                );
+                    if (ConfigReader.isScreenshotAttachmentEnabled()) {
+                        scenario.attach(capture.bytes(), "image/png", "final-state");
+                    }
+                }
             }
-            catch (WebDriverException | ClassCastException | NullPointerException e) {
-                logger.warn("Unable to attach screenshot to report", e);
-            }
-
+        } finally {
+            DriverManagerClass.DriverManager.quitDriver();
+            LOGGER.info("Finished scenario: {} | status={}", scenario.getName(), scenario.getStatus());
         }
-
-
-
-        closeBrowser();
-
-
-
-        logger.info(
-                "Scenario Completed"
-        );
-
     }
-
-
 }
