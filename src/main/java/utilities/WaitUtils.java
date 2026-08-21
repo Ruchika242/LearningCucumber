@@ -16,9 +16,10 @@ public class WaitUtils {
     }
 
     private static WebDriverWait getWait() {
-        WebDriver driver = DriverManagerClass.DriverManager.getDriver();
+        WebDriver driver = drivermanager.DriverManagerClass.getDriver();
         return new WebDriverWait(driver, Duration.ofSeconds(ConfigReader.getExplicitWaitTimeout()));
     }
+
 
     public static WebElement waitForElementVisible(WebElement element) {
         return getWait().until(ExpectedConditions.visibilityOf(element));

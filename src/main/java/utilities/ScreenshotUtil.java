@@ -19,44 +19,61 @@ public class ScreenshotUtil {
         // Utility class
     }
 
-    public static ScreenshotCapture captureScreenshot(String scenarioName) {
-        WebDriver driver = DriverManagerClass.DriverManager.getDriver();
-        if (driver == null) {
+    /**
+     * Captures a screenshot, saves it to
+     * {@code <screenshotDir>/<browser>/<sanitizedName>_<timestamp>_T<threadId>.png},
+     * and returns the raw bytes for Cucumber report attachment.
+     *
+     * @param scenarioName human-readable scenario name (used in the file name)
+     * @param browser      browser name (chrome / firefox / edge) – used as a subfolder
+     * @return {@link ScreenshotCapture} with the absolute file path and raw PNG bytes,
+     *         or {@code null} if the driver is unavailable
+     */
+    public static ScreenshotCapture captureScreenshot(String scenarioName, String browser) {
+
+        WebDriver driver;
+        try {
+            driver = DriverManagerClass.getDriver();
+        } catch (IllegalStateException ignored) {
+            // Driver not initialised – nothing to capture.
             return null;
         }
 
         byte[] bytes = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
-        String fileName = sanitizeScenarioName(scenarioName)
-                + "_"
-                + LocalDateTime.now().format(FILE_TS)
-                + "_T"
-                + Thread.currentThread().getId()
-                + ".png";
 
-        Path outputDirectory = Path.of(ConfigReader.getScreenshotDirectory());
-        Path outputFile = outputDirectory.resolve(fileName);
+        String safeScenario = sanitize(scenarioName);
+        String safeBrowser  = sanitize(browser == null ? "unknown" : browser);
+        String timestamp    = LocalDateTime.now().format(FILE_TS);
+        long   threadId     = Thread.currentThread().threadId();
+        String fileName     = safeScenario + "_" + timestamp + "_T" + threadId + ".png";
+
+        // Organise by browser sub-folder: target/screenshots/chrome/...
+        Path outputDir  = Path.of(ConfigReader.getScreenshotDirectory()).resolve(safeBrowser);
+        Path outputFile = outputDir.resolve(fileName);
 
         try {
-            Files.createDirectories(outputDirectory);
+            Files.createDirectories(outputDir);
             Files.write(outputFile, bytes);
         } catch (IOException e) {
-            throw new RuntimeException("Unable to save screenshot: " + outputFile, e);
+            throw new RuntimeException("Unable to save screenshot to: " + outputFile, e);
         }
 
-        return new ScreenshotCapture(outputFile.toString(), bytes);
+        return new ScreenshotCapture(outputFile.toAbsolutePath().toString(), bytes);
     }
 
-    private static String sanitizeScenarioName(String scenarioName) {
-        if (scenarioName == null || scenarioName.trim().isEmpty()) {
+    /** Backward-compatible overload without browser (uses "unknown" sub-folder). */
+    public static ScreenshotCapture captureScreenshot(String scenarioName) {
+        return captureScreenshot(scenarioName, null);
+    }
+
+    private static String sanitize(String value) {
+        if (value == null || value.trim().isEmpty()) {
             return "scenario";
         }
-
-        return scenarioName
-                .trim()
-                .replaceAll("[^a-zA-Z0-9_-]", "_")
-                .replaceAll("_+", "_");
+        return value.trim()
+                    .replaceAll("[^a-zA-Z0-9_-]", "_")
+                    .replaceAll("_+", "_");
     }
 
-    public record ScreenshotCapture(String filePath, byte[] bytes) {
-    }
+    public record ScreenshotCapture(String filePath, byte[] bytes) {}
 }

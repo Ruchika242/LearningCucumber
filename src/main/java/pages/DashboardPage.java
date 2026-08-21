@@ -17,7 +17,7 @@ public class DashboardPage {
     private final WebDriverWait wait;
 
     public DashboardPage() {
-        WebDriver driver = DriverManagerClass.DriverManager.getDriver();
+        WebDriver driver = drivermanager.DriverManagerClass.getDriver();
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(ConfigReader.getExplicitWaitTimeout()));
         PageFactory.initElements(driver, this);
     }

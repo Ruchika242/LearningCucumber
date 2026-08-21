@@ -5,12 +5,13 @@ import drivermanager.DriverManagerClass;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.junit.jupiter.api.Assertions;
+import org.testng.Assert;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import pages.DashboardPage;
 import pages.LoginPage;
 import utilities.ConfigReader;
+import drivermanager.DriverManagerClass;
 
 import java.time.Duration;
 
@@ -31,7 +32,7 @@ public class LoginPageSteps {
 
     @When("User opens the application URL")
     public void openApplicationUrl() {
-        DriverManagerClass.DriverManager.getDriver().get(ConfigReader.getBaseUrl());
+        drivermanager.DriverManagerClass.getDriver().get(ConfigReader.getBaseUrl());
     }
 
     @And("User logs in with configured credentials")
@@ -53,15 +54,15 @@ public class LoginPageSteps {
     @Then("DashboardPage URL should be {string}")
     public void verifyDashboardUrl(String expectedUrl) {
         WebDriverWait wait = new WebDriverWait(
-                DriverManagerClass.DriverManager.getDriver(),
+                drivermanager.DriverManagerClass.getDriver(),
                 Duration.ofSeconds(ConfigReader.getExplicitWaitTimeout())
         );
         wait.until(ExpectedConditions.urlContains("dashboard"));
-        Assertions.assertEquals(expectedUrl, DriverManagerClass.DriverManager.getDriver().getCurrentUrl());
+        Assert.assertEquals(expectedUrl, drivermanager.DriverManagerClass.getDriver().getCurrentUrl());
     }
 
     @Then("LoginPage URL should be {string}")
     public void verifyLoginPageUrl(String expectedUrl) {
-        Assertions.assertEquals(expectedUrl, DriverManagerClass.DriverManager.getDriver().getCurrentUrl());
+        Assert.assertEquals(expectedUrl, drivermanager.DriverManagerClass.getDriver().getCurrentUrl());
     }
 }

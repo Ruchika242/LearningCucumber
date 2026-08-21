@@ -4,7 +4,7 @@ import context.TestContext;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.junit.jupiter.api.Assertions;
+import org.testng.Assert;
 import pages.DashboardPage;
 
 public class DashboardPageSteps {
@@ -30,7 +30,7 @@ public class DashboardPageSteps {
 
     @Then("Locate the Recent Transactions widget")
     public void locateRecentTransactionsWidget() {
-        Assertions.assertTrue(
+        Assert.assertTrue(
                 getDashboardPage().isRecentTransactionsWidgetDisplayed(),
                 "Recent Transactions widget is not visible on Dashboard."
         );
@@ -39,7 +39,7 @@ public class DashboardPageSteps {
     @And("Assert that maximum 5 transactions are shown")
     public void assertThatMaximum5TransactionsAreShown() {
         int count = getDashboardPage().getTransactionRowCount();
-        Assertions.assertTrue(
+        Assert.assertTrue(
                 count <= 5,
                 "Expected maximum 5 recent transactions, but found: " + count
         );

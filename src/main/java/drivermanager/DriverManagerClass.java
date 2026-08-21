@@ -1,8 +1,6 @@
 package drivermanager;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -13,405 +11,180 @@ import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import utilities.ConfigReader;
 
-import java.net.URI;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Duration;
 
 public class DriverManagerClass {
 
-    public static class DriverManager {
+    private static final ThreadLocal<WebDriver> driver =
+            new ThreadLocal<>();
 
-        private static final Logger LOGGER =
-                LogManager.getLogger(DriverManager.class);
+    public static void launchBrowser(String browser) {
 
-        /*
-         * ThreadLocal ensures each parallel scenario
-         * gets its own WebDriver instance.
-         */
-        private static final ThreadLocal<WebDriver> driverThreadLocal =
-                new ThreadLocal<>();
+        try {
 
-        private DriverManager() {
-        }
-
-        // =========================================================
-        // INITIALIZE DRIVER
-        // =========================================================
-
-        public static void initializeDriver(String browser) {
-
-            // Close existing driver for the current thread
-            if (driverThreadLocal.get() != null) {
-                LOGGER.warn(
-                        "Existing WebDriver found. Closing old session."
-                );
-                quitDriver();
-            }
-
-            String browserName =
-                    browser == null
-                            ? "chrome"
-                            : browser.trim().toLowerCase();
-
+            WebDriver webDriver;
+            String normalizedBrowser = browser.toLowerCase().trim();
+            boolean gridEnabled = ConfigReader.isGridEnabled();
+            String gridUrl = ConfigReader.getGridUrl();
             boolean headless = ConfigReader.isHeadless();
 
-            WebDriver driver;
+            switch (normalizedBrowser) {
 
-            try {
+                case "chrome":
 
-                /*
-                 * Decide whether execution is LOCAL or GRID
-                 * based on config.properties.
-                 */
-                if (ConfigReader.isGridEnabled()) {
+                    ChromeOptions chromeOptions = buildChromeOptions(headless);
+                    webDriver = gridEnabled
+                            ? new RemoteWebDriver(new URL(gridUrl), chromeOptions)
+                            : createLocalChromeDriver(chromeOptions);
 
-                    String gridUrl = ConfigReader.getGridUrl();
+                    break;
 
-                    URL remoteGridUrl = toGridUrl(gridUrl);
+                case "firefox":
 
-                    LOGGER.info(
-                            "Launching {} on Selenium Grid: {} | Thread: {}",
-                            browserName,
-                            remoteGridUrl,
-                            Thread.currentThread().getName()
+                    FirefoxOptions firefoxOptions = buildFirefoxOptions(headless);
+                    webDriver = gridEnabled
+                            ? new RemoteWebDriver(new URL(gridUrl), firefoxOptions)
+                            : createLocalFirefoxDriver(firefoxOptions);
+
+                    break;
+
+                case "edge":
+
+                    EdgeOptions edgeOptions = buildEdgeOptions(headless);
+                    webDriver = gridEnabled
+                            ? new RemoteWebDriver(new URL(gridUrl), edgeOptions)
+                            : createLocalEdgeDriver(edgeOptions);
+
+                    break;
+
+                default:
+
+                    throw new IllegalArgumentException(
+                            "Invalid browser: " + browser
                     );
-
-                    driver = createGridDriver(
-                            browserName,
-                            headless,
-                            remoteGridUrl
-                    );
-
-                } else {
-
-                    LOGGER.info(
-                            "Launching {} locally | Thread: {}",
-                            browserName,
-                            Thread.currentThread().getName()
-                    );
-
-                    driver = createLocalDriver(
-                            browserName,
-                            headless
-                    );
-                }
-
-            } catch (Exception e) {
-
-                LOGGER.error(
-                        "Failed to initialize WebDriver for browser: {}",
-                        browserName,
-                        e
-                );
-
-                throw new RuntimeException(
-                        "Unable to initialize WebDriver for browser: "
-                                + browserName,
-                        e
-                );
             }
 
-            // =====================================================
-            // TIMEOUTS
-            // =====================================================
+            applyTimeouts(webDriver);
 
-            driver.manage()
-                    .timeouts()
-                    .pageLoadTimeout(
-                            Duration.ofSeconds(
-                                    ConfigReader.getPageLoadTimeout()
-                            )
-                    );
+            driver.set(webDriver);
 
-            driver.manage()
-                    .timeouts()
-                    .scriptTimeout(
-                            Duration.ofSeconds(
-                                    ConfigReader.getScriptTimeout()
-                            )
-                    );
+            System.out.println(
+                    "=============================================="
+            );
 
-            driver.manage()
-                    .timeouts()
-                    .implicitlyWait(
-                            Duration.ofSeconds(
-                                    ConfigReader.getImplicitWaitTimeout()
-                            )
-                    );
+            System.out.println(
+                    "BROWSER STARTED: "
+                            + normalizedBrowser
+            );
 
-            /*
-             * Store driver in ThreadLocal.
-             */
-            driverThreadLocal.set(driver);
+            System.out.println(
+                    "Execution Mode: "
+                            + (gridEnabled ? "GRID" : "LOCAL")
+                            + " | URL: "
+                            + (gridEnabled ? gridUrl : "N/A")
+            );
 
-            LOGGER.info(
-                    "WebDriver initialized successfully. " +
-                            "Browser={}, Grid={}, Headless={}, Thread={}",
-                    browserName,
-                    ConfigReader.isGridEnabled(),
-                    headless,
-                    Thread.currentThread().getName()
+            System.out.println(
+                    "THREAD: "
+                            + Thread.currentThread().threadId()
+            );
+
+            System.out.println(
+                    "=============================================="
+            );
+
+        } catch (MalformedURLException e) {
+
+            throw new RuntimeException(
+                    "Invalid Selenium Grid URL: "
+                            + ConfigReader.getGridUrl(),
+                    e
+            );
+        }
+    }
+
+    private static ChromeOptions buildChromeOptions(boolean headless) {
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--no-sandbox");
+        if (headless) {
+            options.addArguments("--headless=new");
+        }
+        return options;
+    }
+
+    private static FirefoxOptions buildFirefoxOptions(boolean headless) {
+        FirefoxOptions options = new FirefoxOptions();
+        if (headless) {
+            options.addArguments("-headless");
+        }
+        return options;
+    }
+
+    private static EdgeOptions buildEdgeOptions(boolean headless) {
+        EdgeOptions options = new EdgeOptions();
+        if (headless) {
+            options.addArguments("--headless=new");
+        }
+        return options;
+    }
+
+    private static WebDriver createLocalChromeDriver(ChromeOptions options) {
+        WebDriverManager.chromedriver().setup();
+        return new ChromeDriver(options);
+    }
+
+    private static WebDriver createLocalFirefoxDriver(FirefoxOptions options) {
+        WebDriverManager.firefoxdriver().setup();
+        return new FirefoxDriver(options);
+    }
+
+    private static WebDriver createLocalEdgeDriver(EdgeOptions options) {
+        // Selenium 4.6+ bundles Selenium Manager which auto-detects the locally
+        // installed Edge version and resolves msedgedriver without any network call
+        // to msedgedriver.azureedge.net — WebDriverManager is intentionally skipped here.
+        return new EdgeDriver(options);
+    }
+
+    private static void applyTimeouts(WebDriver webDriver) {
+        webDriver.manage().timeouts().implicitlyWait(Duration.ofSeconds(ConfigReader.getImplicitWaitTimeout()));
+        webDriver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(ConfigReader.getPageLoadTimeout()));
+        webDriver.manage().timeouts().scriptTimeout(Duration.ofSeconds(ConfigReader.getScriptTimeout()));
+    }
+
+    public static WebDriver getDriver() {
+
+        WebDriver webDriver = driver.get();
+
+        if (webDriver == null) {
+
+            throw new IllegalStateException(
+                    "WebDriver is not initialized for thread: "
+                            + Thread.currentThread().threadId()
             );
         }
 
+        return webDriver;
+    }
 
-        // =========================================================
-        // LOCAL DRIVER
-        // =========================================================
+    public static void quitDriver() {
 
-        private static WebDriver createLocalDriver(
-                String browser,
-                boolean headless) {
+        WebDriver webDriver = driver.get();
 
-            switch (browser) {
-
-                case "chrome" -> {
-
-                    WebDriverManager
-                            .chromedriver()
-                            .setup();
-
-                    ChromeOptions options =
-                            new ChromeOptions();
-
-                    options.addArguments(
-                            "--remote-allow-origins=*"
-                    );
-
-                    if (headless) {
-
-                        options.addArguments(
-                                "--headless=new"
-                        );
-
-                        options.addArguments(
-                                "--window-size=1920,1080"
-                        );
-
-                    } else {
-
-                        options.addArguments(
-                                "--start-maximized"
-                        );
-                    }
-
-                    return new ChromeDriver(options);
-                }
-
-
-                case "firefox" -> {
-
-                    WebDriverManager
-                            .firefoxdriver()
-                            .setup();
-
-                    FirefoxOptions options =
-                            new FirefoxOptions();
-
-                    if (headless) {
-                        options.addArguments("-headless");
-                    }
-
-                    FirefoxDriver driver =
-                            new FirefoxDriver(options);
-
-                    if (!headless) {
-                        driver.manage()
-                                .window()
-                                .maximize();
-                    }
-
-                    return driver;
-                }
-
-
-                case "edge" -> {
-
-                    WebDriverManager
-                            .edgedriver()
-                            .setup();
-
-                    EdgeOptions options =
-                            new EdgeOptions();
-
-                    if (headless) {
-
-                        options.addArguments(
-                                "--headless=new"
-                        );
-
-                        options.addArguments(
-                                "--window-size=1920,1080"
-                        );
-
-                    } else {
-
-                        options.addArguments(
-                                "--start-maximized"
-                        );
-                    }
-
-                    return new EdgeDriver(options);
-                }
-
-
-                default -> throw new IllegalArgumentException(
-                        "Unsupported browser: "
-                                + browser
-                                + ". Supported browsers: "
-                                + "chrome, firefox, edge."
-                );
-            }
-        }
-
-
-        // =========================================================
-        // SELENIUM GRID DRIVER
-        // =========================================================
-
-        private static WebDriver createGridDriver(
-                String browser,
-                boolean headless,
-                URL gridUrl) {
-
-            switch (browser) {
-
-                case "chrome" -> {
-
-                    ChromeOptions options =
-                            new ChromeOptions();
-
-                    options.addArguments(
-                            "--remote-allow-origins=*"
-                    );
-
-                    if (headless) {
-
-                        options.addArguments(
-                                "--headless=new"
-                        );
-
-                        options.addArguments(
-                                "--window-size=1920,1080"
-                        );
-                    }
-
-                    return new RemoteWebDriver(
-                            gridUrl,
-                            options
-                    );
-                }
-
-
-                case "firefox" -> {
-
-                    FirefoxOptions options =
-                            new FirefoxOptions();
-
-                    if (headless) {
-                        options.addArguments("-headless");
-                    }
-
-                    return new RemoteWebDriver(
-                            gridUrl,
-                            options
-                    );
-                }
-
-
-                case "edge" -> {
-
-                    EdgeOptions options =
-                            new EdgeOptions();
-
-                    if (headless) {
-
-                        options.addArguments(
-                                "--headless=new"
-                        );
-
-                        options.addArguments(
-                                "--window-size=1920,1080"
-                        );
-                    }
-
-                    return new RemoteWebDriver(
-                            gridUrl,
-                            options
-                    );
-                }
-
-
-                default -> throw new IllegalArgumentException(
-                        "Unsupported Grid browser: "
-                                + browser
-                                + ". Supported browsers: "
-                                + "chrome, firefox, edge."
-                );
-            }
-        }
-
-
-        // =========================================================
-        // GRID URL
-        // =========================================================
-
-        private static URL toGridUrl(String gridUrl) {
+        if (webDriver != null) {
 
             try {
-
-                return URI
-                        .create(gridUrl)
-                        .toURL();
-
-            } catch (Exception e) {
-
-                throw new IllegalStateException(
-                        "Invalid Selenium Grid URL: "
-                                + gridUrl,
-                        e
-                );
+                webDriver.quit();
+            } finally {
+                driver.remove();
             }
-        }
 
-
-        // =========================================================
-        // GET DRIVER
-        // =========================================================
-
-        public static WebDriver getDriver() {
-            return driverThreadLocal.get();
-        }
-
-
-        // =========================================================
-        // QUIT DRIVER
-        // =========================================================
-
-        public static void quitDriver() {
-
-            WebDriver driver =
-                    driverThreadLocal.get();
-
-            if (driver != null) {
-
-                try {
-
-                    driver.quit();
-
-                    LOGGER.info(
-                            "WebDriver session closed. Thread={}",
-                            Thread.currentThread().getName()
-                    );
-
-                } finally {
-
-                    /*
-                     * Important for parallel execution.
-                     */
-                    driverThreadLocal.remove();
-                }
-            }
+            System.out.println(
+                    "Browser closed | Thread: "
+                            + Thread.currentThread().threadId()
+            );
         }
     }
 }

@@ -13,36 +13,75 @@
     <version>1.0-SNAPSHOT</version>
 
 
+    <!-- ========================================================= -->
+    <!-- PROPERTIES                                                -->
+    <!-- ========================================================= -->
+
     <properties>
 
+        <!-- Java -->
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
-
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <!-- Dependency Versions -->
+        <!-- Selenium -->
         <selenium.version>4.34.0</selenium.version>
+
+        <!-- Cucumber -->
         <cucumber.version>7.23.0</cucumber.version>
 
+        <!-- JUnit -->
         <junit.version>5.11.4</junit.version>
         <junit.platform.version>1.11.4</junit.platform.version>
 
-        <surefire.version>3.5.2</surefire.version>
+        <!-- TestNG -->
+        <testng.version>7.11.0</testng.version>
 
-        <!-- Execution defaults (can be overridden with -D... at runtime) -->
-        <browser>chrome</browser>
+        <!-- Surefire -->
+        <surefire.version>3.5.3</surefire.version>
+
+        <!-- WebDriverManager -->
+        <webdrivermanager.version>6.1.0</webdrivermanager.version>
+
+        <!-- Apache POI -->
+        <poi.version>5.2.5</poi.version>
+
+        <!-- Log4j -->
+        <log4j.version>2.23.1</log4j.version>
+
+
+        <!-- ===================================================== -->
+        <!-- DEFAULT TEST EXECUTION SETTINGS                       -->
+        <!-- ===================================================== -->
+
+
         <headless>false</headless>
+
         <env>qa</env>
+
+        <grid.enabled>false</grid.enabled>
+
+        <grid.url>http://10.0.0.153:4444</grid.url>
+
         <cucumber.filter.tags></cucumber.filter.tags>
+
+        <!-- TestNG handles parallel execution -->
         <cucumber.execution.parallel.enabled>false</cucumber.execution.parallel.enabled>
 
     </properties>
 
 
+    <!-- ========================================================= -->
+    <!-- DEPENDENCIES                                              -->
+    <!-- ========================================================= -->
+
     <dependencies>
 
 
-        <!-- Selenium -->
+        <!-- ===================================================== -->
+        <!-- SELENIUM                                               -->
+        <!-- ===================================================== -->
+
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-java</artifactId>
@@ -50,7 +89,10 @@
         </dependency>
 
 
-        <!-- Cucumber Java -->
+        <!-- ===================================================== -->
+        <!-- CUCUMBER                                               -->
+        <!-- ===================================================== -->
+
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-java</artifactId>
@@ -58,81 +100,11 @@
             <scope>test</scope>
         </dependency>
 
-
-
-
-
-
-
-
-        <!-- Cucumber JUnit 5 Engine -->
         <dependency>
             <groupId>io.cucumber</groupId>
-            <artifactId>cucumber-junit-platform-engine</artifactId>
+            <artifactId>cucumber-testng</artifactId>
             <version>${cucumber.version}</version>
-            <scope>test</scope>
         </dependency>
-
-
-        <!-- JUnit 5 -->
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-
-        <!-- JUnit Platform Suite -->
-        <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-suite</artifactId>
-            <version>${junit.platform.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-
-        <!-- WebDriver Manager -->
-        <dependency>
-            <groupId>io.github.bonigarcia</groupId>
-            <artifactId>webdrivermanager</artifactId>
-            <version>6.1.0</version>
-        </dependency>
-
-
-
-
-        <!-- Apache POI Excel -->
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi-ooxml</artifactId>
-            <version>5.2.5</version>
-        </dependency>
-
-
-        <!-- Log4j2 API -->
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>2.23.1</version>
-        </dependency>
-
-
-        <!-- Log4j2 Implementation -->
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>2.23.1</version>
-        </dependency>
-
-        <!-- Route SLF4J logs (used by some libraries) to Log4j2 -->
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j2-impl</artifactId>
-            <version>2.23.1</version>
-            <scope>test</scope>
-        </dependency>
-
 
         <dependency>
             <groupId>io.cucumber</groupId>
@@ -142,92 +114,220 @@
         </dependency>
 
 
+        <!-- ===================================================== -->
+        <!-- TESTNG                                                 -->
+        <!-- ===================================================== -->
+
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>${testng.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+
+        <!-- ===================================================== -->
+        <!-- WEBDRIVER MANAGER                                      -->
+        <!-- ===================================================== -->
+
+        <dependency>
+            <groupId>io.github.bonigarcia</groupId>
+            <artifactId>webdrivermanager</artifactId>
+            <version>${webdrivermanager.version}</version>
+        </dependency>
+
+
+        <!-- ===================================================== -->
+        <!-- APACHE POI                                             -->
+        <!-- ===================================================== -->
+
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>${poi.version}</version>
+        </dependency>
+
+
+        <!-- ===================================================== -->
+        <!-- LOG4J2                                                 -->
+        <!-- ===================================================== -->
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j2-impl</artifactId>
+            <version>${log4j.version}</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
+
+    <!-- ========================================================= -->
+    <!-- BUILD                                                     -->
+    <!-- ========================================================= -->
 
     <build>
 
         <plugins>
 
 
-            <!-- Maven Surefire Plugin -->
+            <!-- ================================================= -->
+            <!-- MAVEN SUREFIRE                                    -->
+            <!-- ================================================= -->
+
             <plugin>
+
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${surefire.version}</version>
 
                 <configuration>
+
+                    <!-- Required for Java 21 -->
                     <useModulePath>false</useModulePath>
+
+
+                    <!-- ========================================= -->
+                    <!-- IMPORTANT: USE TESTNG XML SUITE           -->
+                    <!-- ========================================= -->
+
+                    <suiteXmlFiles>
+
+                        <suiteXmlFile>
+                            src/test/resources/testNG.xml
+                        </suiteXmlFile>
+
+                    </suiteXmlFiles>
+
+                    <!-- Keep execution in one JVM so the custom plugin can aggregate all browser runs. -->
+                    <forkCount>1</forkCount>
+                    <reuseForks>true</reuseForks>
+
+
+                    <!-- ========================================= -->
+                    <!-- PASS MAVEN PROPERTIES TO JAVA             -->
+                    <!-- ========================================= -->
+
                     <systemPropertyVariables>
-                        <browser>${browser}</browser>
-                        <headless>${headless}</headless>
-                        <env>${env}</env>
-                        <cucumber.filter.tags>${cucumber.filter.tags}</cucumber.filter.tags>
-                        <cucumber.execution.parallel.enabled>${cucumber.execution.parallel.enabled}</cucumber.execution.parallel.enabled>
+
+                        <browser>
+                            ${browser}
+                        </browser>
+
+                        <headless>
+                            ${headless}
+                        </headless>
+
+                        <env>
+                            ${env}
+                        </env>
+
+                        <grid.enabled>
+                            ${grid.enabled}
+                        </grid.enabled>
+
+                        <grid.url>
+                            ${grid.url}
+                        </grid.url>
+
+                        <cucumber.filter.tags>
+                            ${cucumber.filter.tags}
+                        </cucumber.filter.tags>
+
+                        <cucumber.execution.parallel.enabled>
+                            ${cucumber.execution.parallel.enabled}
+                        </cucumber.execution.parallel.enabled>
+
                     </systemPropertyVariables>
 
-                    <includes>
-                        <include>**/TestRunner.java</include>
-                    </includes>
-
                 </configuration>
 
             </plugin>
 
-
-            <!-- Cluecumber Report Plugin -->
-            <plugin>
-                <groupId>com.trivago.rta</groupId>
-                <artifactId>cluecumber-engine</artifactId>
-                <version>2.9.4</version>
-                <executions>
-                    <execution>
-                        <id>generate-cluecumber-report</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>reporting</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <sourceJsonReportDirectory>${project.build.directory}/reports/cucumber</sourceJsonReportDirectory>
-                    <generatedHtmlReportDirectory>${project.build.directory}/reports/cluecumber</generatedHtmlReportDirectory>
-                    <customPageTitle>Automation Test Execution Report</customPageTitle>
-                    <customParameters>
-                        <Browser>${browser}</Browser>
-                        <Environment>${env}</Environment>
-                        <Headless>${headless}</Headless>
-                    </customParameters>
-                </configuration>
-            </plugin>
 
 
         </plugins>
 
     </build>
 
+
+    <!-- ========================================================= -->
+    <!-- PROFILES                                                  -->
+    <!-- ========================================================= -->
+
     <profiles>
+
+
+        <!-- ===================================================== -->
+        <!-- LOCAL PROFILE                                         -->
+        <!-- ===================================================== -->
+
         <profile>
+
             <id>local</id>
+
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
+
             <properties>
+
                 <headless>false</headless>
+
                 <env>qa</env>
-                <cucumber.execution.parallel.enabled>false</cucumber.execution.parallel.enabled>
+
+                <grid.enabled>false</grid.enabled>
+
+                <cucumber.execution.parallel.enabled>
+                    false
+                </cucumber.execution.parallel.enabled>
+
             </properties>
+
         </profile>
+
+
+        <!-- ===================================================== -->
+        <!-- GRID / CI PROFILE                                     -->
+        <!-- ===================================================== -->
 
         <profile>
-            <id>ci</id>
-            <properties>
-                <headless>true</headless>
-                <env>ci</env>
-                <cucumber.execution.parallel.enabled>true</cucumber.execution.parallel.enabled>
-            </properties>
-        </profile>
-    </profiles>
 
+            <id>ci</id>
+
+            <properties>
+
+                <headless>true</headless>
+
+                <env>ci</env>
+
+                <grid.enabled>true</grid.enabled>
+
+                <grid.url>
+                    http://10.0.0.153:4444
+                </grid.url>
+
+                <!-- TestNG controls parallel execution -->
+                <cucumber.execution.parallel.enabled>
+                    true
+                </cucumber.execution.parallel.enabled>
+
+            </properties>
+
+        </profile>
+
+    </profiles>
 
 </project>

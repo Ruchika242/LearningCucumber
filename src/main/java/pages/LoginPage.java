@@ -9,7 +9,7 @@ import utilities.WaitUtils;
 public class LoginPage {
 
     public LoginPage() {
-        PageFactory.initElements(DriverManagerClass.DriverManager.getDriver(), this);
+        PageFactory.initElements(drivermanager.DriverManagerClass.getDriver(), this);
     }
 
     @FindBy(id = "login-username")

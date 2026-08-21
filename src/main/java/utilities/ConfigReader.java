@@ -78,6 +78,9 @@ public class ConfigReader {
         return toBoolean(resolve("screenshot.on.failure", "SCREENSHOT_ON_FAILURE", "true"));
     }
 
+    public static boolean isScreenshotOnPassEnabled() {
+        return toBoolean(resolve("screenshot.on.pass", "SCREENSHOT_ON_PASS", "false"));
+    }
 
     public static boolean isScreenshotAttachmentEnabled() {
         return toBoolean(resolve("screenshot.attach.to.report", "SCREENSHOT_ATTACH_TO_REPORT", "true"));

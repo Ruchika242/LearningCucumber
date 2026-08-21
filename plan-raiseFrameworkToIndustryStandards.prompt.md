@@ -3,7 +3,7 @@
 This draft plan standardizes your framework in three layers: configuration, execution, and implementation quality. It keeps your current stack (Cucumber + JUnit 5 + Selenium) but introduces predictable environment control, CI-ready execution profiles, and consistent observability (reports, logs, screenshots) with clear toggles. The result is reliable local/CI runs, easier debugging, and cleaner long-term maintenance.
 
 ### Steps
-1. Define target conventions by auditing [pom.xml](pom.xml), [junit-platform.properties](src/test/resources/junit-platform.properties), and `testRunner.TestRunner`.
+1. Define target conventions by auditing [pom.xml](pom.xml), [junit-platform.properties](src/test/resources/junit-platform.properties), and `runner.TestRunner`.
 2. Design layered configuration using `utilities.ConfigReader` with environment files under [src/test/resources](src/test/resources) and runtime overrides.
 3. Standardize execution profiles in [pom.xml](pom.xml) for tags, browsers, parallelism, and CI/local modes via `maven-surefire-plugin`.
 4. Unify reporting outputs in [junit-platform.properties](src/test/resources/junit-platform.properties), [extent.properties](src/test/resources/extent.properties), and [extent-config.xml](src/test/resources/extent-config.xml).

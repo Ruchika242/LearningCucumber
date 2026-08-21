@@ -1,6 +1,6 @@
 # LearningCucumber Framework
 
-This framework uses Selenium + Cucumber + JUnit 5 and follows a layered configuration model for local and CI execution.
+This framework uses Selenium + Cucumber + TestNG with one parameterized runner and supports parallel cross-browser execution on Selenium Grid.
 
 ## Configuration Strategy
 
@@ -25,39 +25,35 @@ Run full suite with default profile:
 mvn clean test
 ```
 
-Run in headless Chrome:
+Run locally (non-grid) with browser override:
 
 ```powershell
-mvn clean test -Dbrowser=chrome -Dheadless=true
+mvn clean test -Dbrowser=chrome -Dgrid.enabled=false
+```
+
+Run all browsers in parallel on Selenium Grid (Chrome + Firefox + Edge):
+
+```powershell
+mvn clean test -Pci -Dgrid.enabled=true -Dgrid.url="http://10.0.0.153:4444"
 ```
 
 Run with Cucumber tags:
 
 ```powershell
-mvn clean test -Dcucumber.filter.tags="@smoke"
+mvn clean test -Dcucumber.filter.tags="@Smoke"
 ```
 
 Run with CI environment overrides:
 
 ```powershell
-mvn clean test -Denv=ci
-```
-
-Run with the CI Maven profile (headless + ci env + parallel enabled defaults):
-
-```powershell
-mvn clean test -Pci
+mvn clean test -Denv=ci -Dheadless=true
 ```
 
 ## Reports, Logs, and Screenshots
 
 Generated artifacts:
 
-- Cucumber HTML: `target/reports/cucumber/cucumber.html`
-- Cucumber JSON: `target/reports/cucumber/cucumber.json`
-- Cucumber JUnit XML: `target/reports/cucumber/cucumber.xml`
-- Cucumber rerun file: `target/reports/cucumber/rerun.txt`
-- Extent Spark report: `target/reports/extent/ExtentReport.html`
+- Single consolidated HTML report: `target/reports/cucumber-report.html`
 - Framework logs: `target/logs/automation.log`
 - Screenshots: `target/screenshots`
 
@@ -68,13 +64,35 @@ Screenshot behavior is controlled from `config.properties`:
 - `screenshot.attach.to.report`
 - `screenshot.output.dir`
 
-## Parallel Execution
+## Parallel Execution Model
 
-Default configuration is serial for stability. To enable Cucumber parallel execution:
+Parallelization is controlled by `src/test/resources/testNG.xml`:
+
+- suite level `parallel="tests"`
+- `thread-count="3"`
+- three `<test>` entries with `browser` parameters (`chrome`, `firefox`, `edge`)
+- all three point to the same parameterized runner: `runner.TestRunner`
+
+This gives one test flow executed concurrently on three browsers while keeping one final HTML report.
+
+## CI Matrix and Grid Capacity Policy
+
+Recommended CI baseline:
+
+- matrix axes: `browser`, `env`, `headless` (if your pipeline executes browser jobs independently)
+- pre-flight Grid health check (`/status`) before test start
+- strict session capacity alignment: TestNG `thread-count` must be <= Grid available slots
+- retries only for infrastructure failures (session creation, node disconnect, transport timeout)
+- no retry for assertion/functional failures
+
+Timeout knobs are centrally configured in:
+
+- `src/test/resources/config.properties`
+- `src/test/resources/config-ci.properties`
+
+Runtime override format:
 
 ```powershell
-mvn clean test -Dcucumber.execution.parallel.enabled=true
+mvn clean test -Dpage.load.timeout=45 -Dscript.timeout=45 -Dimplicit.wait.timeout=0
 ```
-
-You can adjust thread count in `src/test/resources/junit-platform.properties`.
 
