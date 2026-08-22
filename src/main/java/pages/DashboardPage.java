@@ -1,25 +1,15 @@
 package pages;
 
-import drivermanager.DriverManagerClass;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import utilities.ConfigReader;
 
-import java.time.Duration;
 import java.util.List;
 
-public class DashboardPage {
-
-    private final WebDriverWait wait;
+public class DashboardPage extends BasePage {
 
     public DashboardPage() {
-        WebDriver driver = drivermanager.DriverManagerClass.getDriver();
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(ConfigReader.getExplicitWaitTimeout()));
-        PageFactory.initElements(driver, this);
+        super();
     }
 
     @FindBy(xpath = "//h2[text()=\"Recent Transactions\"]")

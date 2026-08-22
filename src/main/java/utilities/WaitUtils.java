@@ -32,6 +32,10 @@ public class WaitUtils {
     public static boolean waitForElementPresent(By element) {
         return getWait().until(ExpectedConditions.presenceOfElementLocated(element)).isDisplayed();
     }
+
+    public static boolean waitForUrlContains(String partialUrl) {
+        return getWait().until(ExpectedConditions.urlContains(partialUrl));
+    }
 }
 
 

@@ -15,17 +15,10 @@ public class DashboardPageSteps {
         this.testContext = testContext;
     }
 
-    private DashboardPage getDashboardPage() {
-        if (testContext.getDashboardPage() == null) {
-            testContext.setDashboardPage(new DashboardPage());
-        }
-        return testContext.getDashboardPage();
-    }
-
     @When("Navigate to Dashboard")
     public void navigateToDashboard() {
         // Login step already lands on dashboard; ensure page object is available in context.
-        getDashboardPage();
+        testContext.getOrCreateDashboardPage();
     }
 
     @Then("Locate the Recent Transactions widget")
@@ -43,6 +36,10 @@ public class DashboardPageSteps {
                 count <= 5,
                 "Expected maximum 5 recent transactions, but found: " + count
         );
+    }
+
+    private DashboardPage getDashboardPage() {
+        return testContext.getOrCreateDashboardPage();
     }
 
 }

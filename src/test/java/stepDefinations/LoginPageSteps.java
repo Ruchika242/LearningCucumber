@@ -5,15 +5,10 @@ import drivermanager.DriverManagerClass;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.testng.Assert;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import pages.DashboardPage;
-import pages.LoginPage;
 import utilities.ConfigReader;
-import drivermanager.DriverManagerClass;
-
-import java.time.Duration;
+import utilities.WaitUtils;
+import org.testng.Assert;
 
 public class LoginPageSteps {
 
@@ -23,22 +18,17 @@ public class LoginPageSteps {
         this.testContext = testContext;
     }
 
-    private LoginPage getLoginPage() {
-        if (testContext.getLoginPage() == null) {
-            testContext.setLoginPage(new LoginPage());
-        }
-        return testContext.getLoginPage();
-    }
-
     @When("User opens the application URL")
     public void openApplicationUrl() {
-        drivermanager.DriverManagerClass.getDriver().get(ConfigReader.getBaseUrl());
+        DriverManagerClass.getDriver().get(ConfigReader.getBaseUrl());
     }
 
     @And("User logs in with configured credentials")
     public void loginWithConfiguredCredentials() {
         DashboardPage dashboardPage =
-                getLoginPage().login(ConfigReader.getUsername(), ConfigReader.getPassword());
+                testContext.getOrCreateLoginPage().login(ConfigReader.getUsername(), ConfigReader.getPassword());
+
+        WaitUtils.waitForUrlContains("/bank/dashboard");
 
         // Save for reuse in next steps/classes within the same scenario.
         testContext.setDashboardPage(dashboardPage);
@@ -46,23 +36,19 @@ public class LoginPageSteps {
 
     @And("User logs in with invalid credentials")
     public void loginWithInvalidCredentials() {
-        getLoginPage().login(ConfigReader.getInvalidUsername(), ConfigReader.getInvalidPassword());
+        testContext.getOrCreateLoginPage().login(ConfigReader.getInvalidUsername(), ConfigReader.getInvalidPassword());
         // Invalid login should remain on login page; clear dashboard from context.
         testContext.setDashboardPage(null);
     }
 
     @Then("DashboardPage URL should be {string}")
     public void verifyDashboardUrl(String expectedUrl) {
-        WebDriverWait wait = new WebDriverWait(
-                drivermanager.DriverManagerClass.getDriver(),
-                Duration.ofSeconds(ConfigReader.getExplicitWaitTimeout())
-        );
-        wait.until(ExpectedConditions.urlContains("dashboard"));
-        Assert.assertEquals(expectedUrl, drivermanager.DriverManagerClass.getDriver().getCurrentUrl());
+        WaitUtils.waitForUrlContains("dashboard");
+        Assert.assertEquals(expectedUrl, DriverManagerClass.getDriver().getCurrentUrl());
     }
 
     @Then("LoginPage URL should be {string}")
     public void verifyLoginPageUrl(String expectedUrl) {
-        Assert.assertEquals(expectedUrl, drivermanager.DriverManagerClass.getDriver().getCurrentUrl());
+        Assert.assertEquals(expectedUrl, DriverManagerClass.getDriver().getCurrentUrl());
     }
 }

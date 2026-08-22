@@ -26,15 +26,13 @@ import utilities.BrowserContext;
 )
 public class TestRunner extends AbstractTestNGCucumberTests {
 
-    private String browser = "chrome";
-
     @BeforeMethod(alwaysRun = true)
     public void setBrowserForScenario(ITestContext testContext) {
         String configuredBrowser = testContext.getCurrentXmlTest().getParameter("browser");
-        this.browser = configuredBrowser == null || configuredBrowser.isBlank()
+        String browserName = configuredBrowser == null || configuredBrowser.isBlank()
                 ? "chrome"
                 : configuredBrowser;
-        BrowserContext.setBrowser(this.browser);
+        BrowserContext.setBrowser(browserName);
     }
 
     @AfterClass(alwaysRun = true)
@@ -51,7 +49,6 @@ public class TestRunner extends AbstractTestNGCucumberTests {
     @Override
     @Test(groups = "cucumber", description = "Runs Cucumber Scenario", dataProvider = "scenarios")
     public void runScenario(PickleWrapper pickleWrapper, FeatureWrapper featureWrapper) {
-        BrowserContext.setBrowser(browser);
         super.runScenario(pickleWrapper, featureWrapper);
     }
 }
