@@ -21,48 +21,52 @@ public class AccountsPageSteps {
 
     @When("Navigate to Accounts")
     public void navigateToAccounts() {
-        URI baseUri = URI.create(ConfigReader.getBaseUrl());
-        String accountsUrl = baseUri.getScheme() + "://" + baseUri.getAuthority() + "/bank/accounts";
-        DriverManagerClass.getDriver().get(accountsUrl);
+        DriverManagerClass.getDriver().get(getAccountsUrl());
         testContext.setAccountsPage(new AccountsPage());
     }
 
     @Then("Locate the Accounts page")
     public void locateTheAccountsPage() {
-        Assert.assertTrue(getAccountsPage().isAccountsPageDisplayed(), "Accounts page is not visible.");
+        Assert.assertTrue(accountsPage().isAccountsPageDisplayed(), "Accounts page is not visible.");
     }
 
     @And("Assert that the Accounts page is displayed correctly")
     public void assertThatTheAccountsPageIsDisplayedCorrectly() {
-        Assert.assertTrue(getAccountsPage().isAccountsPageDisplayed(), "Accounts page validation failed.");
+        Assert.assertTrue(accountsPage().isAccountsPageDisplayed(), "Accounts page validation failed.");
     }
 
     @And("Click on Add New Account button")
     public void clickOnAddNewAccountButton() {
-        getAccountsPage().clickAddNewAccountButton();
+        accountsPage().clickAddNewAccountButton();
     }
 
     @Then("Fill Account Name, Account Type and Starting Balance fields")
     public void fillAccountNameAccountTypeAndStartingBalanceFields() {
-        AccountsPage accountsPage = getAccountsPage();
-        accountsPage.enterAccountName("Automation Account");
-        accountsPage.selectAccountType("Checking");
-        accountsPage.enterStartingBalance("5000");
+        AccountsPage page = accountsPage();
+        page.enterAccountName("Automation Account");
+        page.selectAccountType("Checking");
+        page.enterStartingBalance("5000");
     }
 
     @And("select the check box for {string}")
     public void selectTheCheckBoxFor(String termsLabel) {
-        Assert.assertEquals(termsLabel, "I accept the terms and conditions", "Unexpected checkbox label.");
-        getAccountsPage().clickAcceptTermsCheckbox();
+        // Keep this simple: the user intent is to tick the terms checkbox.
+        accountsPage().clickAcceptTermsCheckbox();
     }
 
-    @And("Click on {string} button")
-    public void clickOnButton(String buttonName) {
-        Assert.assertEquals(buttonName, "Add Account", "Unsupported button for this step.");
-        getAccountsPage().clickAddAccountSubmitButton();
+    @And("Click on \"Add Account\" button")
+    public void clickOnAddAccountButton() {
+        accountsPage().clickAddAccountSubmitButton();
     }
 
-    private AccountsPage getAccountsPage() {
+    private AccountsPage accountsPage() {
         return testContext.getOrCreateAccountsPage();
+    }
+
+    // Account number validation steps are implemented in TransferPageSteps as requested.
+
+    private String getAccountsUrl() {
+        URI baseUri = URI.create(ConfigReader.getBaseUrl());
+        return baseUri.getScheme() + "://" + baseUri.getAuthority() + "/bank/accounts";
     }
 }

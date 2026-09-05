@@ -15,3 +15,4 @@ Feature: QAPlayground Login
     When User opens the application URL
     And User logs in with invalid credentials
     Then LoginPage URL should be "https://qaplayground.com/bank/login"
+

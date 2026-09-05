@@ -15,18 +15,31 @@ public class DashboardPage extends BasePage {
     @FindBy(xpath = "//h2[text()=\"Recent Transactions\"]")
     private WebElement recentTransactionsHeader;
 
-
     @FindBy(xpath = "//table[@data-testid='recent-transactions-table']//tbody/tr")
     private List<WebElement> recentTransactionsTable;
+
+    @FindBy(xpath = "//span[text()='Transfer']")
+    private WebElement transferLink;
+
+    @FindBy(xpath = "//span[text()='Bill Pay']")
+    private WebElement billPayLink;
 
 
     public boolean isRecentTransactionsWidgetDisplayed() {
         return wait.until(ExpectedConditions.visibilityOf(recentTransactionsHeader)).isDisplayed();
     }
 
-
     public int getTransactionRowCount() {
         wait.until(ExpectedConditions.visibilityOfAllElements(recentTransactionsTable));
         return recentTransactionsTable.size();
     }
+
+    public void clickTransferLink() {
+        wait.until(ExpectedConditions.elementToBeClickable(transferLink)).click();
+    }
+
+    public void clickBillPayLink() {
+        wait.until(ExpectedConditions.elementToBeClickable(billPayLink)).click();
+    }
 }
+

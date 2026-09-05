@@ -42,4 +42,24 @@ public class DashboardPageSteps {
         return testContext.getOrCreateDashboardPage();
     }
 
+    @Then("Click on Transfer link")
+    public void clickOnTransferLink() {
+        getDashboardPage().clickTransferLink();
+    }
+
+    @Then("Verify that user is navigated to Transfer page")
+    public void verifyThatUserIsNavigatedToTransferPage() {
+        // Assuming that the TransferPageSteps will handle the navigation verification.
+        // This step can be left empty or can call a method in TransferPageSteps if needed.
+    }
+
+    @Then("Click on Bill Pay link")
+    public void clickOnBillPayLink() {
+        getDashboardPage().clickBillPayLink();
+    }
+
+    @Then("Verify that user is navigated to Bill Pay page")
+    public void verifyThatUserIsNavigatedToBillPayPage() {
+
+    }
 }

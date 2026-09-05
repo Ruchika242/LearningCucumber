@@ -3,6 +3,7 @@ package context;
 import pages.AccountsPage;
 import pages.DashboardPage;
 import pages.LoginPage;
+import pages.TransferPage;
 
 /**
  * Shared scenario context.
@@ -14,6 +15,7 @@ public class TestContext {
     private LoginPage loginPage;
     private DashboardPage dashboardPage;
     private AccountsPage accountsPage;
+    private TransferPage transferPage;
 
     public LoginPage getLoginPage() {
 
@@ -59,5 +61,20 @@ public class TestContext {
             accountsPage = new AccountsPage();
         }
         return accountsPage;
+    }
+
+    public TransferPage getTransferPage() {
+        return transferPage;
+    }
+
+    public void setTransferPage(TransferPage transferPage) {
+        this.transferPage = transferPage;
+    }
+
+    public TransferPage getOrCreateTransferPage() {
+        if (transferPage == null) {
+            transferPage = new TransferPage();
+        }
+        return transferPage;
     }
 }
