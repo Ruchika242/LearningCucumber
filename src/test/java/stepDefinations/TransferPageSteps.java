@@ -1,7 +1,7 @@
 package stepDefinations;
 
 import context.TestContext;
-import drivermanager.DriverManagerClass;
+import drivermanager.DriverManager;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -22,7 +22,7 @@ public class TransferPageSteps {
     public void navigateToTransferFunds() {
         URI baseUri = URI.create(ConfigReader.getBaseUrl());
         String transferUrl = baseUri.getScheme() + "://" + baseUri.getAuthority() + "/bank/transfer";
-        DriverManagerClass.getDriver().get(transferUrl);
+        DriverManager.getDriver().get(transferUrl);
         testContext.setTransferPage(new TransferPage());
     }
 
@@ -56,10 +56,10 @@ public class TransferPageSteps {
         testContext.getOrCreateTransferPage().enterAmount("100");
     }
 
-    @And("Fill in the transfer details including From Account, To Account, Amount(greater than available balance), and Schedule Date")
+    @When("^Fill in the transfer details including From Account, To Account, Amount \\(greater than available balance\\), and Schedule Date$")
     public void fillInTheTransferDetailsWithInvalidAmount() {
         testContext.getOrCreateTransferPage().selectFromAccount("Everyday Checking");
-        testContext.getOrCreateTransferPage().selectToAccount("test1");
+        testContext.getOrCreateTransferPage().selectToAccount("Pipeline");
         testContext.getOrCreateTransferPage().enterAmount("4500");
     }
 
@@ -83,6 +83,15 @@ public class TransferPageSteps {
         testContext.getOrCreateTransferPage().clickConfirmTransferButton();
     }
 
+    @Then("Assert that an error message is displayed indicating insufficient funds for the transfer like Insufficient funds.")
+    public void assertInsufficientFundsMessageIsDisplayed() {
+
+        Assert.assertTrue(
+                testContext.getOrCreateTransferPage().isInsufficientFundsErrorDisplayed(),
+                "Insufficient funds error message is not displayed as expected."
+        );
+    }
+
     @Then("Locate the Account Number field")
     public void locateTheAccountNumberField() {
         Assert.assertTrue(
@@ -93,7 +102,10 @@ public class TransferPageSteps {
 
     @Then("^Assert that the Account Number is masked \\(e\\.g\\., displayed as \"([^\"]*)\"\\)$")
     public void assertThatTheAccountNumberIsMasked(String maskedFormatExample) {
-        testContext.getOrCreateAccountsPage().isAccountNumberDisplayedAsMasked("Everyday Checking");
+        Assert.assertTrue(
+                testContext.getOrCreateAccountsPage().isAccountNumberDisplayedAsMasked("Everyday Checking"),
+                "Masked account number format not found. Expected a value similar to: " + maskedFormatExample
+        );
     }
 }
 

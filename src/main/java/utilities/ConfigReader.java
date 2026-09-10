@@ -42,6 +42,10 @@ public class ConfigReader {
         return resolve("grid.url", "GRID_URL", "http://10.0.0.153:4444");
     }
 
+    public static String getEdgeDriverPath() {
+        return resolve("webdriver.edge.driver", "WEBDRIVER_EDGE_DRIVER", "");
+    }
+
     public static String getUsername() {
         return resolve("app.username", "APP_USERNAME", "standard_user");
     }

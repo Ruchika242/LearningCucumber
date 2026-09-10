@@ -1,7 +1,9 @@
 package pages;
 
+import org.apache.commons.collections4.SetUtils;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
+import utilities.SelUtils;
 import utilities.WaitUtils;
 
 public class LoginPage extends BasePage {
@@ -20,23 +22,21 @@ public class LoginPage extends BasePage {
     private WebElement loginButton;
 
     public void enterUsername(String value) {
-        WaitUtils.waitForElementVisible(username).clear();
-        username.sendKeys(value);
+        SelUtils.clearAndSendKeys(username, value);
     }
 
     public void enterPassword(String value) {
-        WaitUtils.waitForElementVisible(password).clear();
-        password.sendKeys(value);
+        SelUtils.clearAndSendKeys(password, value);
     }
 
     public DashboardPage clickLogin() {
-        WaitUtils.waitForElementClickable(loginButton).click();
+        SelUtils.clickElement(loginButton);
         return new DashboardPage();
     }
 
     public DashboardPage login(String username, String password) {
-        enterUsername(username);
-        enterPassword(password);
+        SelUtils.enterText(this.username, username);
+        SelUtils.enterText(this.password, password);
         return clickLogin();
-    }
+        }
 }

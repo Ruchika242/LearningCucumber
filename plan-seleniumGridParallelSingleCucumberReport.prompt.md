@@ -5,7 +5,7 @@ This draft plan standardizes your framework for enterprise-style cross-browser e
 ### Steps
 1. Standardize execution engine in [pom.xml](pom.xml), [src/test/resources/testNG.xml](src/test/resources/testNG.xml), and `runner.*` around TestNG+Cucumber only.
 2. Replace browser-specific runners with one parameterized runner (`runner.GridParallelRunner`) that reads `browser` from TestNG `@Parameters` and stores it in `BrowserContext` for thread-safe hooks and plugin access.
-3. Refactor `drivermanager.DriverManagerClass.launchBrowser` to use `utilities.ConfigReader` (`grid.enabled`, `grid.url`, `headless`) and remove hardcoded Grid URL values.
+3. Refactor `drivermanager.DriverManager` to use `utilities.ConfigReader` (`grid.enabled`, `grid.url`, `headless`) and remove hardcoded Grid URL values.
 4. Configure [src/test/resources/testNG.xml](src/test/resources/testNG.xml) with three parallel `<test>` blocks (Chrome, Firefox, Edge), all pointing to the same runner class and passing only different `browser` values.
 5. Keep only one reporting owner: `reporting.ProfessionalCucumberHtmlPlugin`. Remove duplicate HTML/JSON report plugins from runner options to prevent browser-wise report fragmentation.
 6. Ensure the plugin output path is single and stable (for example `target/reports/cucumber-report.html`) and that report generation runs once per suite in CI.

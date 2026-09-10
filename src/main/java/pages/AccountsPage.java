@@ -1,13 +1,23 @@
 package pages;
 
+import org.apache.commons.collections4.SetUtils;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import pages.BasePage;
+import utilities.SelUtils;
+import utilities.WaitUtils;
 
+import java.time.Duration;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 public class AccountsPage extends BasePage {
+
+    private static final Pattern MASKED_ACCOUNT_PATTERN =
+            Pattern.compile("(?s).*[\\*\\u2022]{4,}\\s*\\d{3,4}.*");
 
     public AccountsPage() {
         super();
@@ -48,24 +58,21 @@ public class AccountsPage extends BasePage {
 
     // Verify Accounts page is displayed
     public boolean isAccountsPageDisplayed() {
-        return wait.until(
-                ExpectedConditions.visibilityOf(addAccountButton)
-        ).isDisplayed();
+        return WaitUtils.waitForElementVisible(addAccountButton);
     }
 
 
     // Click Add New Account
     public void clickAddNewAccountButton() {
-        wait.until(
-                ExpectedConditions.elementToBeClickable(addAccountButton)
-        ).click();
+        SelUtils.clickElement(addAccountButton);
     }
 
     // Verify Account Number field is displayed
     public boolean isAccountNumberFieldDisplayed() {
+        waitForAccountRowsToRender();
         for (WebElement row : accountRows) {
             String rowText = row.getText();
-            if (rowText.matches("(?s).*\\*{4}\\d{4}.*")) {
+            if (isMaskedAccountText(rowText)) {
                 return true;
             }
         }
@@ -73,74 +80,79 @@ public class AccountsPage extends BasePage {
     }
 
 
-            // Enter Account Name
-            public void enterAccountName(String name) {
-                wait.until(
-                        ExpectedConditions.visibilityOf(accountNameInput)
-                ).sendKeys(name);
-            }
+    // Enter Account Name
+    public void enterAccountName(String name) {
+        SelUtils.sendKeys(accountNameInput, name);
+
+    }
 
 
-            // Select Account Type
-            public void selectAccountType(String type) {
+    // Select Account Type
+    public void selectAccountType(String type) {
 
-                wait.until(
-                        ExpectedConditions.elementToBeClickable(accountTypeDropdown)
-                ).click();
+        SelUtils.clickElement(accountTypeDropdown);
 
-                for (WebElement option : accountTypeOptions) {
+        for (WebElement option : accountTypeOptions) {
 
-                    if (option.getText().trim().equals(type)) {
-                        option.click();
-                        break;
-                    }
-                }
-            }
-
-
-            // Enter Starting Balance
-            public void enterStartingBalance(String balance) {
-
-                wait.until(
-                        ExpectedConditions.visibilityOf(startingBalanceInput)
-                ).sendKeys(balance);
-            }
-
-
-            // Accept Terms
-            public void clickAcceptTermsCheckbox() {
-
-                wait.until(
-                        ExpectedConditions.elementToBeClickable(acceptTermsCheckbox)
-                ).click();
-            }
-
-
-            // Click Add Account
-            public void clickAddAccountSubmitButton() {
-
-                wait.until(ExpectedConditions.elementToBeClickable(addAccountButtonSubmit)).click();
-            }
-
-
-            // Verify account number is masked
-            public boolean isAccountNumberDisplayedAsMasked(String accountName) {
-
-                for (WebElement row : accountRows) {
-
-                    String rowText = row.getText();
-
-                    if (rowText.contains(accountName)) {
-
-                        // Example: ****4321
-                        if (rowText.matches("(?s).*\\*{4}\\d{4}.*")) {
-                            return true;
-                        }
-                    }
-                }
-
-                return false;
+            if (option.getText().trim().equals(type)) {
+                option.click();
+                break;
             }
         }
+    }
+
+
+    // Enter Starting Balance
+    public void enterStartingBalance(String balance) {
+        SelUtils.sendKeys(startingBalanceInput, balance);
+
+    }
+
+
+    // Accept Terms
+    public void clickAcceptTermsCheckbox() {
+        SelUtils.clickElement(acceptTermsCheckbox);
+    }
+
+    //Add Account
+    public void clickAddAccountSubmitButton() {
+        SelUtils.clickElement(addAccountButtonSubmit);
+    }
+
+
+    // Verify account number is masked
+    public boolean isAccountNumberDisplayedAsMasked(String accountName) {
+
+        waitForAccountRowsToRender();
+
+        for (WebElement row : accountRows) {
+
+            String rowText = row.getText();
+
+            if (rowText.contains(accountName)) {
+
+                if (isMaskedAccountText(rowText)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private void waitForAccountRowsToRender() {
+
+        WaitUtils.waitForElementsVisible(accountRows);
+    }
+
+    private boolean isMaskedAccountText(String value) {
+        if (value == null || value.isBlank()) {
+            return false;
+        }
+        return MASKED_ACCOUNT_PATTERN.matcher(value).matches();
+    }
+
+
+}
 
 

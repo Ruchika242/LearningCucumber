@@ -12,7 +12,7 @@ import org.testng.ITestContext;
 import utilities.BrowserContext;
 
 @CucumberOptions(
-        features = "src/test/resources/Features/Transfer.feature",
+        features = "src/test/resources/Features",
         glue = {
                 "stepDefinations",
                 "hooks"
@@ -20,7 +20,7 @@ import utilities.BrowserContext;
         plugin = {
                 "pretty",
                 "summary",
-                "reporting.ProfessionalCucumberHtmlPlugin"
+                "reporting.CucumberReport"
         },
         monochrome = true
 )

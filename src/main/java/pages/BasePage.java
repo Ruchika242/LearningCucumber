@@ -1,6 +1,6 @@
 package pages;
 
-import drivermanager.DriverManagerClass;
+import drivermanager.DriverManager;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -13,11 +13,11 @@ import java.time.Duration;
  */
 public abstract class BasePage {
 
-    protected final WebDriver driver;
+    protected static WebDriver driver;
     protected final WebDriverWait wait;
 
     protected BasePage() {
-        this.driver = DriverManagerClass.getDriver();
+        this.driver = DriverManager.getDriver();
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(ConfigReader.getExplicitWaitTimeout()));
         PageFactory.initElements(driver, this);
     }

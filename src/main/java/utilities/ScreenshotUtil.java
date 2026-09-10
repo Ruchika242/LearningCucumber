@@ -1,6 +1,6 @@
 package utilities;
 
-import drivermanager.DriverManagerClass;
+import drivermanager.DriverManager;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
@@ -33,7 +33,7 @@ public class ScreenshotUtil {
 
         WebDriver driver;
         try {
-            driver = DriverManagerClass.getDriver();
+            driver = DriverManager.getDriver();
         } catch (IllegalStateException ignored) {
             // Driver not initialised – nothing to capture.
             return null;

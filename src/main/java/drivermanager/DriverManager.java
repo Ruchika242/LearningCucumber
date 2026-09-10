@@ -16,7 +16,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Duration;
 
-public class DriverManagerClass {
+public class DriverManager {
 
     private static final ThreadLocal<WebDriver> driver =
             new ThreadLocal<>();
@@ -70,7 +70,8 @@ public class DriverManagerClass {
     }
 
     private static WebDriver createRemoteDriver(String gridUrl, Capabilities options) throws MalformedURLException {
-        return new RemoteWebDriver(new URL(gridUrl), options);
+        URL grid = new URL(gridUrl);
+        return new RemoteWebDriver(grid, options);
     }
 
     private static void logLaunchDetails(String browser, boolean gridEnabled, String gridUrl) {
@@ -84,8 +85,6 @@ public class DriverManagerClass {
 
     private static ChromeOptions buildChromeOptions(boolean headless) {
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--disable-dev-shm-usage");
-        options.addArguments("--no-sandbox");
         if (headless) {
             options.addArguments("--headless=new");
         }
@@ -119,10 +118,28 @@ public class DriverManagerClass {
     }
 
     private static WebDriver createLocalEdgeDriver(EdgeOptions options) {
-        // Selenium 4.6+ bundles Selenium Manager which auto-detects the locally
-        // installed Edge version and resolves msedgedriver without any network call
-        // to msedgedriver.azureedge.net — WebDriverManager is intentionally skipped here.
-        return new EdgeDriver(options);
+        String explicitDriverPath = ConfigReader.getEdgeDriverPath();
+        if (explicitDriverPath != null && !explicitDriverPath.isBlank()) {
+            System.setProperty("webdriver.edge.driver", explicitDriverPath.trim());
+            return new EdgeDriver(options);
+        }
+
+        try {
+            WebDriverManager.edgedriver().setup();
+            return new EdgeDriver(options);
+        } catch (RuntimeException wdmFailure) {
+            // Fallback allows execution with an already-installed driver on PATH.
+            try {
+                return new EdgeDriver(options);
+            } catch (RuntimeException localFailure) {
+                localFailure.addSuppressed(wdmFailure);
+                throw new RuntimeException(
+                        "Unable to initialize Edge driver. WebDriverManager could not download the driver and local fallback failed. "
+                                + "Set -Dwebdriver.edge.driver=<absolute-path-to-msedgedriver.exe> or enable Grid execution.",
+                        localFailure
+                );
+            }
+        }
     }
 
     private static void applyTimeouts(WebDriver webDriver) {

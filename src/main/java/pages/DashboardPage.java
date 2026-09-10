@@ -3,6 +3,8 @@ package pages;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import utilities.SelUtils;
+import utilities.WaitUtils;
 
 import java.util.List;
 
@@ -26,20 +28,21 @@ public class DashboardPage extends BasePage {
 
 
     public boolean isRecentTransactionsWidgetDisplayed() {
-        return wait.until(ExpectedConditions.visibilityOf(recentTransactionsHeader)).isDisplayed();
+       return WaitUtils.waitForElementVisible(recentTransactionsHeader);
     }
 
     public int getTransactionRowCount() {
-        wait.until(ExpectedConditions.visibilityOfAllElements(recentTransactionsTable));
+        WaitUtils.waitForElementsVisible(recentTransactionsTable);
         return recentTransactionsTable.size();
     }
 
     public void clickTransferLink() {
-        wait.until(ExpectedConditions.elementToBeClickable(transferLink)).click();
+
+        SelUtils.clickElement(transferLink);
     }
 
     public void clickBillPayLink() {
-        wait.until(ExpectedConditions.elementToBeClickable(billPayLink)).click();
+        SelUtils.clickElement(billPayLink);
     }
 }
 

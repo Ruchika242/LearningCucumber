@@ -1,6 +1,6 @@
 package hooks;
 
-import drivermanager.DriverManagerClass;
+import drivermanager.DriverManager;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.Scenario;
@@ -22,7 +22,7 @@ public class Hooks {
         System.out.println("Thread           : " + Thread.currentThread().threadId());
         System.out.println("==============================================");
 
-        DriverManagerClass.launchBrowser(browser);
+        DriverManager.launchBrowser(browser);
     }
 
     @After
@@ -44,7 +44,7 @@ public class Hooks {
 
         } finally {
 
-            DriverManagerClass.quitDriver();
+            DriverManager.quitDriver();
             System.out.println("Scenario Completed: " + scenario.getName());
         }
     }

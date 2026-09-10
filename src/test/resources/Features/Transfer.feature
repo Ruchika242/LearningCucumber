@@ -32,4 +32,5 @@ Feature: Transfer
     And Fill in the transfer details including From Account, To Account, Amount (greater than available balance), and Schedule Date
     And Select the "Today" option
     And Click on "Review Transfer" button
-      Then Assert that an error message is displayed indicating insufficient funds for the transfer like Insufficient funds. Available balance: $4,230.00.
+      And Click on "Confirm Transfer" button
+      Then Assert that an error message is displayed indicating insufficient funds for the transfer like Insufficient funds.

@@ -1,7 +1,7 @@
 package stepDefinations;
 
 import context.TestContext;
-import drivermanager.DriverManagerClass;
+import drivermanager.DriverManager;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -21,7 +21,7 @@ public class AccountsPageSteps {
 
     @When("Navigate to Accounts")
     public void navigateToAccounts() {
-        DriverManagerClass.getDriver().get(getAccountsUrl());
+        DriverManager.getDriver().get(getAccountsUrl());
         testContext.setAccountsPage(new AccountsPage());
     }
 
