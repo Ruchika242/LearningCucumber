@@ -6,6 +6,7 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.testng.Assert;
+import org.testng.asserts.SoftAssert;
 import pages.AccountsPage;
 import utilities.ConfigReader;
 
@@ -14,6 +15,8 @@ import java.net.URI;
 public class AccountsPageSteps {
 
     private final TestContext testContext;
+
+    SoftAssert softAssert = new SoftAssert();
 
     public AccountsPageSteps(TestContext testContext) {
         this.testContext = testContext;
@@ -27,12 +30,17 @@ public class AccountsPageSteps {
 
     @Then("Locate the Accounts page")
     public void locateTheAccountsPage() {
-        Assert.assertTrue(accountsPage().isAccountsPageDisplayed(), "Accounts page is not visible.");
+        softAssert.assertTrue(
+                accountsPage().isAccountsPageDisplayed(),
+                "Accounts page is not visible." );
+                softAssert.assertAll();
+
     }
 
     @And("Assert that the Accounts page is displayed correctly")
     public void assertThatTheAccountsPageIsDisplayedCorrectly() {
-        Assert.assertTrue(accountsPage().isAccountsPageDisplayed(), "Accounts page validation failed.");
+        softAssert.assertTrue(accountsPage().isAccountsPageDisplayed(), "Accounts page validation failed.");
+        softAssert.assertAll();
     }
 
     @And("Click on Add New Account button")

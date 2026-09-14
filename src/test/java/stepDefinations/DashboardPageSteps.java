@@ -5,11 +5,13 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.testng.Assert;
+import org.testng.asserts.SoftAssert;
 import pages.DashboardPage;
 
 public class DashboardPageSteps {
 
     private final TestContext testContext;
+    SoftAssert softAssert;
 
     public DashboardPageSteps(TestContext testContext) {
         this.testContext = testContext;
@@ -23,19 +25,21 @@ public class DashboardPageSteps {
 
     @Then("Locate the Recent Transactions widget")
     public void locateRecentTransactionsWidget() {
-        Assert.assertTrue(
+        softAssert.assertTrue(
                 getDashboardPage().isRecentTransactionsWidgetDisplayed(),
                 "Recent Transactions widget is not visible on Dashboard."
         );
+        softAssert.assertAll();
     }
 
     @And("Assert that maximum 5 transactions are shown")
     public void assertThatMaximum5TransactionsAreShown() {
         int count = getDashboardPage().getTransactionRowCount();
-        Assert.assertTrue(
+        softAssert.assertTrue(
                 count <= 5,
                 "Expected maximum 5 recent transactions, but found: " + count
         );
+        softAssert.assertAll();
     }
 
     private DashboardPage getDashboardPage() {

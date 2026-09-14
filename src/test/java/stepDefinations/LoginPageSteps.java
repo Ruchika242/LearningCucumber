@@ -5,12 +5,15 @@ import drivermanager.DriverManager;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.testng.asserts.SoftAssert;
 import pages.DashboardPage;
 import utilities.ConfigReader;
 import utilities.WaitUtils;
 import org.testng.Assert;
 
 public class LoginPageSteps {
+
+    SoftAssert softAssert = new SoftAssert();
 
     private final TestContext testContext;
 
@@ -44,11 +47,14 @@ public class LoginPageSteps {
     @Then("DashboardPage URL should be {string}")
     public void verifyDashboardUrl(String expectedUrl) {
         WaitUtils.waitForUrlContains("dashboard");
-        Assert.assertEquals(expectedUrl, DriverManager.getDriver().getCurrentUrl());
+        softAssert.assertEquals(expectedUrl, DriverManager.getDriver().getCurrentUrl());
+
+        softAssert.assertAll();
     }
 
     @Then("LoginPage URL should be {string}")
     public void verifyLoginPageUrl(String expectedUrl) {
-        Assert.assertEquals(expectedUrl, DriverManager.getDriver().getCurrentUrl());
+        softAssert.assertEquals(expectedUrl, DriverManager.getDriver().getCurrentUrl());
+        softAssert.assertAll();
     }
 }

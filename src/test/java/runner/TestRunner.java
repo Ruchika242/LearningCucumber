@@ -12,7 +12,7 @@ import org.testng.ITestContext;
 import utilities.BrowserContext;
 
 @CucumberOptions(
-        features = "src/test/resources/Features",
+        features = "src/test/resources/Features/SendMoney.feature",
         glue = {
                 "stepDefinations",
                 "hooks"
